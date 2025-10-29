@@ -1,4 +1,4 @@
-# 🌱 Cell Evolution
+# 🌱 Cell Evolution Simulator
 
 An interactive artificial life simulation where organisms evolve through genetic mutations and natural selection in real-time.
 
@@ -261,7 +261,7 @@ SOFTWARE.
 
 Built as a passion project exploring artificial life, genetic algorithms, and real-time simulation.
 
-**Connect**: [GitHub](https://github.com/yourusername) | [Portfolio](https://yourwebsite.com)
+**Connect**: [GitHub](https://github.com/Balanced-Libra) | [Portfolio](https://guyjames.site)
 
 ---
 
