@@ -1,0 +1,740 @@
+:root {
+  --bg: #0b0d10;
+  --box: #11161c;
+  --food: #33d17a;
+  --cell: #58a6ff;
+  --grid: #1b222b;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding-inline: 244px; /* space for stats panels (+8px buffer) */
+  box-sizing: border-box;
+}
+
+.container {
+  position: relative;
+  width: min(92vw, 900px);
+}
+
+#box {
+  width: 100%;
+  height: min(70vh, 650px);
+  background: var(--box);
+  border: 2px solid #202833;
+  border-radius: 8px;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(0,0,0,.4), inset 0 0 0 1px #0e1319;
+  cursor: crosshair;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+}
+
+.hud {
+  position: absolute;
+  inset: auto 10px 10px auto;
+  color: #9fb0c3;
+  font-size: 12px;
+  background: #0f1318cc;
+  padding: 6px 8px;
+  border: 1px solid #1c2530;
+  border-radius: 6px;
+  user-select: none;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.spawn-btn {
+  padding: 8px 16px;
+  background-color: #1c2530;
+  color: #9fb0c3;
+  border: 1px solid #2a3441;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  position: absolute;
+  z-index: 10;
+}
+
+.spawn-btn:hover {
+  background-color: #2a3441;
+}
+
+.spawn-btn.active {
+  background-color: #58a6ff;
+  color: #0b0d10;
+  border-color: #58a6ff;
+}
+
+.help-btn {
+  background-color: #58a6ff;
+  color: #0b0d10;
+  border-color: #58a6ff;
+  font-weight: bold;
+}
+
+.help-btn:hover {
+  background-color: #6cb6ff;
+}
+
+.food-btn {
+  top: -50px;
+  left: 0;
+}
+
+.cell-btn {
+  bottom: -50px;
+  left: 0;
+}
+
+.shift-tip {
+  position: absolute;
+  bottom: -50px;   /* same anchor row as your .cell-btn */
+  left: 0;         /* align with Spawn Cell button origin */
+  transform: translateX(calc(-100% - 12px)); /* move left of the button with a gap */
+  padding: 6px 8px;
+  font-size: 12px;
+  line-height: 1.2;
+  color: #9fb0c3;
+  background: #0f1318;
+  border: 1px solid #2a3441;
+  border-radius: 4px;
+  pointer-events: none;  /* non-interactive */
+  opacity: 0.95;
+}
+
+/* Position the whole food control group where Spawn Food used to sit */
+.food-group {
+  position: absolute;
+  top: -50px;  /* same as your old .food-btn */
+  left: 0;
+}
+
+/* Inside the group, cancel the global absolute buttons so we can lay them out inline */
+.spawn-group .spawn-btn,
+.control-group .spawn-btn {
+  position: static;
+}
+
+
+.spawn-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Small clock button footprint */
+.spawn-group .auto-btn {
+  padding: 8px 10px;
+  min-width: 38px;
+  line-height: 1;
+}
+
+/* Dropdown attached under the group */
+.spawn-group .auto-panel {
+  position: absolute;
+  top: 110%;   /* opens below; switch to bottom:110%; top:auto to open above */
+  left: 0;
+  background: #0f1318;
+  border: 1px solid #2a3441;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: #c8d4e0;
+  z-index: 50;
+  min-width: 240px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.45);
+}
+
+.spawn-group .auto-title {
+  font-size: 12px;
+  opacity: 0.85;
+  margin-bottom: 8px;
+}
+
+.spawn-group .auto-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.spawn-group .auto-opt {
+  border: 1px solid #2a3441;
+  background: #121821;
+  color: #c8d4e0;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.spawn-group .auto-opt:hover {
+  transform: translateY(-1px);
+  background: #182131;
+  border-color: #3a4657;
+}
+
+/* Visual hint when auto is enabled */
+.spawn-group .auto-btn.active {
+  outline: 2px solid #3a8dde;
+  outline-offset: 1px;
+  border-color: #3a8dde;
+}
+/* Position the whole cell control group where Spawn Cell used to sit */
+.cell-group {
+  position: absolute;
+  bottom: -50px; /* same row as old .cell-btn */
+  left: 0;
+}
+
+/* Inside the group, cancel global absolute for inline layout */
+.cell-group .spawn-btn {
+  position: static;
+}
+
+/* Dropdown attached under the group, opens upward to avoid overlap if needed */
+/* Change to top:110%; bottom:auto to open below */
+.cell-group .cell-panel {
+  position: absolute;
+  bottom: 110%;
+  left: 0;
+  background: #0f1318;
+  border: 1px solid #2a3441;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: #c8d4e0;
+  z-index: 50;
+  min-width: 220px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.45);
+}
+
+.cell-group .cell-title {
+  font-size: 12px;
+  opacity: 0.85;
+  margin-bottom: 8px;
+}
+
+.cell-group .cell-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.cell-group .cell-opt {
+  border: 1px solid #2a3441;
+  background: #121821;
+  color: #c8d4e0;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.cell-group .cell-opt:hover {
+  transform: translateY(-1px);
+  background: #182131;
+  border-color: #3a4657;
+}
+
+/* Visual color of Spawn Cell button after choosing a type (matches JS: type-blue / type-purple) */
+#spawnCellBtn.type-blue {
+  background-color: hsl(210, 80%, 60%);
+  color: #0b0d10;
+  border-color: hsl(210, 80%, 60%);
+}
+
+#spawnCellBtn.type-purple {
+  background-color: hsl(270, 80%, 60%);
+  color: #0b0d10;
+  border-color: hsl(270, 80%, 60%);
+}
+
+/* Bottom-right controls (Pause, Wipe) */
+.control-group {
+  position: absolute;
+  bottom: -50px; /* same vertical row as .cell-group */
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Reuse base .spawn-btn look; only tweak specifics */
+.pause-btn.active {
+  background-color: #2a3441;
+  border-color: #3a4657;
+}
+
+/* Red wipe button */
+.wipe-btn {
+  background-color: #3a1010;
+  border-color: #5a1515;
+  color: #f2c9c9;
+}
+.wipe-btn:hover {
+  background-color: #4a1414;
+  border-color: #7a1c1c;
+}
+/* --- Stats side panels --- */
+.stats-panel {
+  position: absolute;
+  top: 0;            /* bottom removed so JS height wins */
+  width: 220px;
+  padding: 10px 12px;
+  background: #0f1318cc;
+  border: 1px solid #1c2530;
+  border-radius: 8px;
+  color: #c8d4e0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 20;
+}
+.stats-panel.left  { left: -244px; }   /* shifted out by 8px */
+.stats-panel.right { right: -248px; }  /* shifted out by 8px */
+
+.stat-title { font-size: 13px; opacity: 0.85; }
+.stat-line  { display: flex; justify-content: space-between; font-size: 12px; }
+
+.meter {
+  height: 6px;
+  background: #121821;
+  border: 1px solid #2a3441;
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 4px 0 8px;
+}
+.meter .fill { height: 100%; width: 0%; background: #58a6ff; }
+.meter .fill.purple { background: hsl(270, 80%, 60%); }
+.meter .fill.red    { background: hsl(0, 80%, 60%);   }
+
+
+.spark { width: 100%; height: 40px; display:block; }
+
+.trait-block { margin-top: 4px; }
+.trait-row   { font-size: 12px; opacity: 0.8; margin-bottom: 2px; }
+/* Fullscreen mode */
+.wrap.is-fullscreen { padding-inline: 0; }
+.wrap.is-fullscreen .stats-panel { display: none; }
+.wrap.is-fullscreen .spawn-group { display: none; }
+
+/* Expand canvas to full viewport */
+.wrap.is-fullscreen .container { position: fixed; inset: 0; width: 100vw; height: 100vh; max-width: none; }
+.wrap.is-fullscreen #box       { position: absolute; inset: 0; width: 100%; height: 100%; }
+.wrap.is-fullscreen #world     { width: 100%; height: 100%; display: block; }
+
+/* Keep controls visible in a corner */
+.wrap.is-fullscreen .control-group { position: absolute; bottom: 12px; right: 12px; }
+
+/* Fullscreen button active state */
+.fullscreen-btn.active {
+  background-color: #2a3441;
+  border-color: #3a4657;
+}
+.wrap.is-fullscreen { overflow: hidden; }
+#spawnCellBtn.type-red {
+  background-color: hsl(0, 80%, 60%);
+  color: #0b0d10;
+  border-color: hsl(0, 80%, 60%);
+}
+/* Kill tool button + cursor */
+.kill-btn {
+  background-color: #4a1414;
+  border-color: #7a1c1c;
+  color: #f2c9c9;
+}
+.kill-btn.active {
+  background-color: #7a1c1c;
+  border-color: #a52222;
+}
+#world.kill-cursor { cursor: crosshair; }
+/* Keep stats panels within their box height and make content scrollable */
+.stats-panel {
+  height: auto;           /* JS sets exact px height */
+  box-sizing: border-box; /* include padding+border in that height */
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+  padding-right: 8px; /* small gutter so scrollbar doesn't overlap content */
+}
+
+/* optional: slimmer scrollbars (supported engines only) */
+.stats-panel::-webkit-scrollbar { width: 8px; }
+.stats-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 8px; }
+.stats-panel::-webkit-scrollbar-track { background: transparent; }
+/* Make side panels match canvas height (use explicit top+height; ignore bottom) */
+.stats-panel { bottom: auto !important; }
+/* ── Mini terminal ─────────────────────────────────────────────── */
+.mini-term {
+  margin-top: 16px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(88,134,187,0.25);
+}
+
+
+.mini-term .mt-header {
+  font-size: 12px;
+  letter-spacing: .04em;
+  opacity: .7;
+}
+.mini-term .mt-out {
+  height: 120px;              /* fits in the left panel; panel already scrolls */
+  overflow-y: auto;
+  font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: pre-wrap;
+  color: #c9d1d9;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(88,134,187,0.2);
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+.mini-term .mt-in {
+  height: 32px;
+  font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: #e6edf3;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(88,134,187,0.3);
+  border-radius: 6px;
+  outline: none;
+  padding: 0 8px;
+}
+.mini-term .mt-in::placeholder { color: rgba(230,237,243,0.45); }
+/* keep space so content above doesn't overlap the terminal */
+.stats-panel.left { padding-bottom: 160px; }
+
+/* place the terminal at the bottom of the left stats panel */
+#leftStats .mini-term {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  margin-top: 0;
+}
+/* Title */
+.app-header {
+  position: fixed;
+  top: 8px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  pointer-events: none; /* don’t block the Spawn Food button */
+  z-index: 1000;
+}
+
+.app-title {
+  font: 700 18px/1.2 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  letter-spacing: 0.2em;
+  color: #e6edf3;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+/* hide title in fullscreen if you want pure canvas */
+.wrap.is-fullscreen .app-header { display: none; }
+.container { position: relative; }  /* anchor the absolute header */
+/* Food growth rate slider (0–5) */
+/* Button-styled growth slider */
+.grow-rate {
+  /* inherits button visuals from .spawn-btn */
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 10px;
+  margin-left: 10px;
+  vertical-align: middle;
+  color: #e6edf3;
+}
+
+/* label + numeric value match button text */
+.grow-rate .grow-label,
+.grow-rate .grow-value {
+  color: #e6edf3;
+  opacity: 0.9;
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* slider visuals (dark UI) */
+.grow-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 110px;
+  height: 18px;
+  background: transparent;
+  outline: none;
+}
+.grow-slider:focus { outline: none; }
+
+/* WebKit */
+.grow-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 3px;
+  background: rgba(230,237,243,0.35);
+}
+.grow-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #e6edf3;
+  border: 1px solid rgba(0,0,0,0.25);
+  margin-top: -5px; /* center on 4px track */
+}
+
+/* Firefox */
+.grow-slider::-moz-range-track {
+  height: 4px;
+  border-radius: 3px;
+  background: rgba(230,237,243,0.35);
+}
+.grow-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #e6edf3;
+  border: 1px solid rgba(0,0,0,0.25);
+}
+
+.grow-label {
+  font-size: 12px;
+  opacity: 0.8;
+}
+.grow-slider {
+  width: 110px;
+  height: 18px;
+}
+.grow-value {
+  min-width: 1.2em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}
+
+/* ========== Game UI Styles ========== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+.modal {
+  background: #0f1318;
+  border: 2px solid #2a3441;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  animation: slideUp 0.3s ease;
+  color: #c8d4e0;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal h1 {
+  margin: 0 0 16px;
+  font-size: 24px;
+  color: #58a6ff;
+  text-align: center;
+}
+
+.modal p {
+  margin: 12px 0;
+  line-height: 1.6;
+  color: #9fb0c3;
+}
+
+.btn-primary, .btn-secondary, .btn-small {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #58a6ff;
+  color: #0b0d10;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: #6cb6ff;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #9fb0c3;
+  border: 1px solid #2a3441;
+}
+
+.btn-secondary:hover {
+  border-color: #3a4657;
+  color: #c8d4e0;
+}
+
+.btn-small {
+  background: #2a3441;
+  color: #c8d4e0;
+  font-size: 12px;
+}
+
+.btn-small:hover {
+  background: #3a4657;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  justify-content: center;
+}
+
+.menu-modal {
+  max-width: 800px;
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.scenario-card {
+  background: #121821;
+  border: 1px solid #2a3441;
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.scenario-card:hover {
+  border-color: #58a6ff;
+  background: #1a2330;
+  transform: translateY(-2px);
+}
+
+.scenario-card h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: #58a6ff;
+}
+
+.scenario-card p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.tutorial-tooltip h2 {
+  font-size: 18px;
+  color: #58a6ff;
+  margin: 0 0 12px;
+}
+
+.tutorial-tooltip button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+/* Welcome modal adjustments */
+.welcome-modal {
+  text-align: center;
+}
+
+.welcome-modal h1 {
+  font-size: 28px;
+  margin-bottom: 24px;
+}
+
+.welcome-modal p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #9fb0c3;
+}
+
+/* Help modal styling */
+.help-modal h3 {
+  color: #58a6ff;
+  font-size: 16px;
+  margin: 20px 0 12px 0;
+}
+
+.help-modal ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.help-modal li {
+  margin: 6px 0;
+  padding-left: 20px;
+  position: relative;
+}
+
+.help-modal li:before {
+  content: "•";
+  color: #58a6ff;
+  position: absolute;
+  left: 0;
+}
+
+.help-modal pre {
+  white-space: pre-wrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  line-height: 1.6;
+  color: #c8d4e0;
+}

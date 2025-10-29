@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cell Evolution - Evolutionary Simulation Game</title>
+  <link rel="stylesheet" href="CSS/styles.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="app-header">
+      <h1 class="app-title">CELL SIM</h1>
+    </header>
+    <div class="container">
+    
+      <div id="box">
+        <canvas id="world"></canvas>
+        <div class="hud" id="hud"></div>
+      </div>
+
+      <div class="spawn-group food-group">
+        <button id="spawnFoodBtn" class="spawn-btn">Spawn Food</button>
+        <button id="autoFoodBtn" class="spawn-btn auto-btn" title="Auto-spawn food">🕒</button>
+        <div class="spawn-btn grow-rate" title="Set growth rate">
+          <span class="grow-label" title="Food growth rate">Grow</span>
+          <input id="growRate" class="grow-slider" type="range" min="0" max="5" step="1" value="1" aria-label="Food growth rate (0–5)" title="Set growth rate">
+          <span id="growRateVal" class="grow-value">3</span>
+        </div>        
+        <div id="autoFoodPanel" class="auto-panel" hidden>
+          <div class="auto-title">Auto food rate</div>
+          <div class="auto-options">
+            <button class="auto-opt" data-ms="3000">Slow (3s)</button>
+            <button class="auto-opt" data-ms="2000">Medium (2s)</button>
+            <button class="auto-opt" data-ms="1000">Fast (1s)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <button id="fullscreenBtn" class="spawn-btn fullscreen-btn" aria-pressed="false" aria-label="Full screen" title="Full screen">⛶</button>
+        <button id="pauseBtn" class="spawn-btn pause-btn" aria-pressed="false">Pause</button>
+        <button id="wipeBtn" class="spawn-btn wipe-btn" title="Clear all">Wipe</button>
+        <button id="helpBtn" class="spawn-btn help-btn" title="Help & Info">?</button>
+      </div>      
+
+      <!-- Stats side panels -->
+      <aside id="leftStats" class="stats-panel left">
+        <div class="stat-title">Population</div>
+      
+        <div class="stat-line"><span>Blue</span><strong id="countBlue">0</strong></div>
+        <div class="meter"><div id="meterBlue" class="fill blue" style="width:0%"></div></div>
+      
+        <div class="stat-line"><span>Purple</span><strong id="countPurple">0</strong></div>
+        <div class="meter"><div id="meterPurple" class="fill purple" style="width:0%"></div></div>
+      
+        <div class="stat-line"><span>Red</span><strong id="countRed">0</strong></div>
+        <div class="meter"><div id="meterRed" class="fill red" style="width:0%"></div></div>
+      
+        <div class="spark-wrap">
+          <svg id="sparkBlue"   class="spark" viewBox="0 0 200 40" preserveAspectRatio="none"></svg>
+          <svg id="sparkPurple" class="spark" viewBox="0 0 200 40" preserveAspectRatio="none"></svg>
+          <svg id="sparkRed"    class="spark" viewBox="0 0 200 40" preserveAspectRatio="none"></svg>
+          <svg id="sparkFood"   class="spark" viewBox="0 0 200 40" preserveAspectRatio="none"></svg>
+        </div>        
+
+        <div class="mini-term">
+          <div class="mt-header">Terminal</div>
+          <div id="termOut" class="mt-out" aria-live="polite"></div>
+          <input id="termIn" class="mt-in" type="text" placeholder="e.g. spawn food 100" spellcheck="false" />
+        </div>
+      </aside>
+
+
+      <aside id="rightStats" class="stats-panel right">
+        <div class="stat-title">Traits (avg)</div>
+      
+        <div class="trait-block">
+          <div class="trait-row"><span>Radius</span></div>
+          <div class="meter"><div id="radiusBlue"   class="fill blue"   style="width:0%"></div></div>
+          <div class="meter"><div id="radiusPurple" class="fill purple" style="width:0%"></div></div>
+          <div class="meter"><div id="radiusRed"    class="fill red"    style="width:0%"></div></div>
+        </div>
+      
+        <div class="trait-block">
+          <div class="trait-row"><span>Speed</span></div>
+          <div class="meter"><div id="speedBlue"    class="fill blue"   style="width:0%"></div></div>
+          <div class="meter"><div id="speedPurple"  class="fill purple" style="width:0%"></div></div>
+          <div class="meter"><div id="speedRed"     class="fill red"    style="width:0%"></div></div>
+        </div>
+      
+        <div class="trait-block">
+          <div class="trait-row"><span>Accel</span></div>
+          <div class="meter"><div id="accelBlue"    class="fill blue"   style="width:0%"></div></div>
+          <div class="meter"><div id="accelPurple"  class="fill purple" style="width:0%"></div></div>
+          <div class="meter"><div id="accelRed"     class="fill red"    style="width:0%"></div></div>
+        </div>
+      
+        <div class="trait-block">
+          <div class="trait-row"><span>Friction</span></div>
+          <div class="meter"><div id="frictionBlue"   class="fill blue"   style="width:0%"></div></div>
+          <div class="meter"><div id="frictionPurple" class="fill purple" style="width:0%"></div></div>
+          <div class="meter"><div id="frictionRed"    class="fill red"    style="width:0%"></div></div>
+        </div>
+      
+        <div class="trait-block">
+          <div class="trait-row"><span>Digestion Delay</span></div>
+          <div class="meter"><div id="digestBlue"     class="fill blue"   style="width:0%"></div></div>
+          <div class="meter"><div id="digestPurple"   class="fill purple" style="width:0%"></div></div>
+          <div class="meter"><div id="digestRed"      class="fill red"    style="width:0%"></div></div>
+        </div>
+      
+        <div class="trait-block">
+          <div class="trait-row"><span>Repro Threshold</span></div>
+          <div class="meter"><div id="thresholdBlue"  class="fill blue"   style="width:0%"></div></div>
+          <div class="meter"><div id="thresholdPurple"class="fill purple" style="width:0%"></div></div>
+          <div class="meter"><div id="thresholdRed"   class="fill red"    style="width:0%"></div></div>
+        </div>
+      
+        <div class="trait-block">
+          <div class="trait-row"><span>Repro Cost</span></div>
+          <div class="meter"><div id="reproCostBlue"   class="fill blue"   style="width:0%"></div></div>
+          <div class="meter"><div id="reproCostPurple" class="fill purple" style="width:0%"></div></div>
+          <div class="meter"><div id="reproCostRed"    class="fill red"    style="width:0%"></div></div>
+        </div>
+      
+        <div class="trait-block">
+          <div class="trait-row"><span>Child Start Energy</span></div>
+          <div class="meter"><div id="childEnergyBlue"   class="fill blue"   style="width:0%"></div></div>
+          <div class="meter"><div id="childEnergyPurple" class="fill purple" style="width:0%"></div></div>
+          <div class="meter"><div id="childEnergyRed"    class="fill red"    style="width:0%"></div></div>
+        </div>
+      
+        <div class="trait-block">
+          <div class="trait-row"><span>Baseline Burn</span></div>
+          <div class="meter"><div id="burnBlue"   class="fill blue"   style="width:0%"></div></div>
+          <div class="meter"><div id="burnPurple" class="fill purple" style="width:0%"></div></div>
+          <div class="meter"><div id="burnRed"    class="fill red"    style="width:0%"></div></div>
+        </div>     
+      </aside>
+      
+      
+
+      <div class="spawn-group cell-group">
+        <button id="spawnCellBtn" class="spawn-btn cell-btn">Spawn Cell</button>
+        <button id="killBtn" class="spawn-btn kill-btn" title="Kill cells">✖</button>
+        <div id="cellPanel" class="cell-panel" hidden>
+          <div class="cell-title">Choose cell type</div>
+          <div class="cell-options">
+            <button class="cell-opt" data-type="blue">Blue</button>
+            <button class="cell-opt" data-type="purple">Purple</button>
+            <button class="cell-opt" data-type="red">Red</button>
+          </div>                 
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Load our scripts in order -->
+  <script src="JavaScript/blueCell/blueCell.js"></script>
+  <script src="JavaScript/purpleCell/purpleCell.js"></script>
+  <script src="JavaScript/redCell/redCell.js"></script>
+  <script src="JavaScript/petriDish/petriDish.js"></script>
+  <script src="JavaScript/help.js"></script>
+  <script src="JavaScript/game.js"></script>
+  <script src="JavaScript/main.js"></script>
+
+</body>
+</html>
