@@ -12,9 +12,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize game manager (handles onboarding/tutorials)
   window.gameManager = new GameManager(simulation);
   
-  // Wire up help button
-  const helpBtn = document.getElementById('helpBtn');
-  if (helpBtn) {
-    helpBtn.addEventListener('click', () => window.helpSystem.showHelp());
-  }
+   // Wire up help button
+   const helpBtn = document.getElementById('helpBtn');
+   if (helpBtn) {
+     helpBtn.addEventListener('click', () => window.helpSystem.showHelp());
+   }
+
+   // Wire up menu button
+   const menuBtn = document.getElementById('menuBtn');
+   if (menuBtn) {
+     menuBtn.addEventListener('click', () => window.gameManager.showMainMenu());
+   }
 });

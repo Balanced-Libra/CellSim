@@ -13,8 +13,6 @@ class GameManager {
     // Check if first time visitor
     if (!this.completedTutorial && this.tutorialStep === 0) {
       this.showWelcome();
-    } else if (this.completedTutorial) {
-      this.showMainMenu();
     }
   }
 
@@ -75,38 +73,50 @@ class GameManager {
     const steps = {
       1: {
         title: "Welcome to Your Petri Dish",
-        message: "This is your evolution chamber. Click anywhere to add blue cells.",
-        action: "Click the canvas to spawn your first blue cell",
+        message: "This is your evolution chamber. Here you'll watch artificial life evolve through natural selection.",
+        action: "Let's start by learning how to feed your cells",
         highlight: '#box'
       },
       2: {
-        title: "Feed Your Cells",
-        message: "Click 'Spawn Food' then click on the canvas to add food pellets. Cells need energy to survive.",
-        action: "Add some food and watch them eat",
+        title: "Spawn Fungus",
+        message: "Fungus spores land on the petri dish and grow. Cells eat the fungus to survive and reproduce. Click 'Spawn Fungus' button, then click on the canvas to place fungus spores.",
+        action: "Click 'Spawn Fungus' and add some fungus spores to the canvas",
         highlight: '#spawnFoodBtn'
       },
       3: {
-        title: "Watch Evolution Happen",
-        message: "As cells eat, they gain energy. When they have enough, they reproduce with random mutations.",
-        action: "Watch the right panel to see genetic traits evolve",
-        highlight: '#rightStats'
+        title: "Auto Fungus Spawning",
+        message: "The clock button (🕒) enables automatic fungus spore spawning. Click it to choose a rate (Slow/Medium/Fast). This keeps spores landing on your petri dish without manual clicking. Spores won't land inside blocks.",
+        action: "Try enabling auto fungus to keep spores landing on your dish",
+        highlight: '#autoFoodBtn'
       },
       4: {
-        title: "Add Competition",
-        message: "Purple cells are larger but slower. Click 'Spawn Cell', choose purple.",
-        action: "Introduce a second species to your ecosystem",
-        highlight: '#spawnCellBtn'
+        title: "Fungus Growth Rate",
+        message: "The 'Grow' slider (0-5) controls how fast existing fungus spreads and grows. 0 = no growth, 5 = very fast growth. Higher values mean fungus spreads faster across the dish. When cells die, the fungus consumes them and grows more.",
+        action: "Adjust the growth slider to see how it affects fungus spreading",
+        highlight: '#growRate'
       },
       5: {
-        title: "Add Predators",
-        message: "Red cells hunt other cells! They can't eat food pellets—only other creatures.",
-        action: "Add some predators and watch the food chain",
+        title: "Spawn Cells",
+        message: "Click 'Spawn Cell' to see all cell types. Blue cells are fast prey. Purple cells are larger but slower—they compete for fungus. Red cells are predators that hunt other cells (they can't eat fungus). Click 'Create' to design custom cells with unique colors, traits, and mutation rates. Saved custom cells appear in the 'Custom' button.",
+        action: "Try spawning different cell types and experiment with custom cells",
         highlight: '#spawnCellBtn'
       },
       6: {
-        title: "Experiment!",
-        message: "You can pause, wipe everything, or use fullscreen. Try the terminal for batch commands.",
-        action: "You're ready to explore on your own!",
+        title: "Watch Evolution Happen",
+        message: "As cells eat, they gain energy. When they have enough, they reproduce with random mutations. Watch the right panel to see genetic traits evolve over generations.",
+        action: "Observe how traits change as cells evolve",
+        highlight: '#rightStats'
+      },
+      7: {
+        title: "Other Tools",
+        message: "The 'Block' button places walls that cells navigate around. The 'X' button (kill tool) removes cells and blocks. The 'Menu' button shows scenarios, and '?' shows help. You can freeze the petri dish, wipe everything, or use fullscreen.",
+        action: "Try out the other tools and buttons",
+        highlight: '#blockBtn'
+      },
+      8: {
+        title: "You're Ready!",
+        message: "You now know all the basics! Experiment with different combinations, create custom species, build mazes, and watch evolution unfold. Try the terminal for batch commands.",
+        action: "Start experimenting and have fun!",
         highlight: null
       }
     };
@@ -158,7 +168,7 @@ class GameManager {
       color: #c8d4e0;
     `;
     tooltip.innerHTML = `
-      <div style="font-size: 14px; opacity: 0.7; margin-bottom: 8px;">Step ${step}/6</div>
+      <div style="font-size: 14px; opacity: 0.7; margin-bottom: 8px;">Step ${step}/8</div>
       <h2 style="margin: 0 0 12px; color: #58a6ff;">${tutorial.title}</h2>
       <p style="margin: 0 0 16px;">${tutorial.message}</p>
       <p style="font-size: 13px; color: #9fb0c3; margin: 0 0 16px;">${tutorial.action}</p>
