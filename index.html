@@ -16,18 +16,19 @@
       <div id="box">
         <canvas id="world"></canvas>
         <div class="hud" id="hud"></div>
+        <div id="freezeOverlay" class="freeze-overlay"></div>
       </div>
 
       <div class="spawn-group food-group">
-        <button id="spawnFoodBtn" class="spawn-btn">Spawn Food</button>
-        <button id="autoFoodBtn" class="spawn-btn auto-btn" title="Auto-spawn food">🕒</button>
+        <button id="spawnFoodBtn" class="spawn-btn">Spawn Fungus</button>
+        <button id="autoFoodBtn" class="spawn-btn auto-btn" title="Auto-spawn fungus spores">🕒</button>
         <div class="spawn-btn grow-rate" title="Set growth rate">
-          <span class="grow-label" title="Food growth rate">Grow</span>
-          <input id="growRate" class="grow-slider" type="range" min="0" max="5" step="1" value="1" aria-label="Food growth rate (0–5)" title="Set growth rate">
+          <span class="grow-label" title="Fungus growth rate">Grow</span>
+          <input id="growRate" class="grow-slider" type="range" min="0" max="5" step="1" value="1" aria-label="Fungus growth rate (0–5)" title="Set growth rate">
           <span id="growRateVal" class="grow-value">3</span>
         </div>        
         <div id="autoFoodPanel" class="auto-panel" hidden>
-          <div class="auto-title">Auto food rate</div>
+          <div class="auto-title">Auto fungus rate</div>
           <div class="auto-options">
             <button class="auto-opt" data-ms="3000">Slow (3s)</button>
             <button class="auto-opt" data-ms="2000">Medium (2s)</button>
@@ -36,12 +37,13 @@
         </div>
       </div>
 
-      <div class="control-group">
-        <button id="fullscreenBtn" class="spawn-btn fullscreen-btn" aria-pressed="false" aria-label="Full screen" title="Full screen">⛶</button>
-        <button id="pauseBtn" class="spawn-btn pause-btn" aria-pressed="false">Pause</button>
-        <button id="wipeBtn" class="spawn-btn wipe-btn" title="Clear all">Wipe</button>
-        <button id="helpBtn" class="spawn-btn help-btn" title="Help & Info">?</button>
-      </div>      
+       <div class="control-group">
+         <button id="fullscreenBtn" class="spawn-btn fullscreen-btn" aria-pressed="false" aria-label="Full screen" title="Full screen">⛶</button>
+         <button id="pauseBtn" class="spawn-btn pause-btn" aria-pressed="false">Freeze</button>
+         <button id="wipeBtn" class="spawn-btn wipe-btn" title="Clear all">Wipe</button>
+         <button id="helpBtn" class="spawn-btn help-btn" title="Help & Info">?</button>
+         <button id="menuBtn" class="spawn-btn menu-btn" title="Scenarios">Menu</button>
+       </div>
 
       <!-- Stats side panels -->
       <aside id="leftStats" class="stats-panel left">
@@ -56,10 +58,14 @@
         <div class="stat-line"><span>Red</span><strong id="countRed">0</strong></div>
         <div class="meter"><div id="meterRed" class="fill red" style="width:0%"></div></div>
       
+        <div class="stat-line" id="statLineCustom" style="display:none;"><span>Custom</span><strong id="countCustom">0</strong></div>
+        <div class="meter" id="meterCustomParent" style="display:none;"><div id="meterCustom" class="fill" style="width:0%"></div></div>
+      
         <div class="spark-wrap">
           <svg id="sparkBlue"   class="spark" viewBox="0 0 200 40" preserveAspectRatio="none"></svg>
           <svg id="sparkPurple" class="spark" viewBox="0 0 200 40" preserveAspectRatio="none"></svg>
           <svg id="sparkRed"    class="spark" viewBox="0 0 200 40" preserveAspectRatio="none"></svg>
+          <svg id="sparkCustom" class="spark" viewBox="0 0 200 40" preserveAspectRatio="none" style="display:none;"></svg>
           <svg id="sparkFood"   class="spark" viewBox="0 0 200 40" preserveAspectRatio="none"></svg>
         </div>        
 
@@ -79,6 +85,7 @@
           <div class="meter"><div id="radiusBlue"   class="fill blue"   style="width:0%"></div></div>
           <div class="meter"><div id="radiusPurple" class="fill purple" style="width:0%"></div></div>
           <div class="meter"><div id="radiusRed"    class="fill red"    style="width:0%"></div></div>
+          <div class="meter" id="radiusCustomParent" style="display:none;"><div id="radiusCustom" class="fill" style="width:0%"></div></div>
         </div>
       
         <div class="trait-block">
@@ -86,6 +93,7 @@
           <div class="meter"><div id="speedBlue"    class="fill blue"   style="width:0%"></div></div>
           <div class="meter"><div id="speedPurple"  class="fill purple" style="width:0%"></div></div>
           <div class="meter"><div id="speedRed"     class="fill red"    style="width:0%"></div></div>
+          <div class="meter" id="speedCustomParent" style="display:none;"><div id="speedCustom" class="fill" style="width:0%"></div></div>
         </div>
       
         <div class="trait-block">
@@ -93,6 +101,7 @@
           <div class="meter"><div id="accelBlue"    class="fill blue"   style="width:0%"></div></div>
           <div class="meter"><div id="accelPurple"  class="fill purple" style="width:0%"></div></div>
           <div class="meter"><div id="accelRed"     class="fill red"    style="width:0%"></div></div>
+          <div class="meter" id="accelCustomParent" style="display:none;"><div id="accelCustom" class="fill" style="width:0%"></div></div>
         </div>
       
         <div class="trait-block">
@@ -100,6 +109,7 @@
           <div class="meter"><div id="frictionBlue"   class="fill blue"   style="width:0%"></div></div>
           <div class="meter"><div id="frictionPurple" class="fill purple" style="width:0%"></div></div>
           <div class="meter"><div id="frictionRed"    class="fill red"    style="width:0%"></div></div>
+          <div class="meter" id="frictionCustomParent" style="display:none;"><div id="frictionCustom" class="fill" style="width:0%"></div></div>
         </div>
       
         <div class="trait-block">
@@ -107,13 +117,15 @@
           <div class="meter"><div id="digestBlue"     class="fill blue"   style="width:0%"></div></div>
           <div class="meter"><div id="digestPurple"   class="fill purple" style="width:0%"></div></div>
           <div class="meter"><div id="digestRed"      class="fill red"    style="width:0%"></div></div>
+          <div class="meter" id="digestCustomParent" style="display:none;"><div id="digestCustom" class="fill" style="width:0%"></div></div>
         </div>
       
         <div class="trait-block">
           <div class="trait-row"><span>Repro Threshold</span></div>
           <div class="meter"><div id="thresholdBlue"  class="fill blue"   style="width:0%"></div></div>
-          <div class="meter"><div id="thresholdPurple"class="fill purple" style="width:0%"></div></div>
+          <div class="meter"><div id="thresholdPurple" class="fill purple" style="width:0%"></div></div>
           <div class="meter"><div id="thresholdRed"   class="fill red"    style="width:0%"></div></div>
+          <div class="meter" id="thresholdCustomParent" style="display:none;"><div id="thresholdCustom" class="fill" style="width:0%"></div></div>
         </div>
       
         <div class="trait-block">
@@ -121,6 +133,7 @@
           <div class="meter"><div id="reproCostBlue"   class="fill blue"   style="width:0%"></div></div>
           <div class="meter"><div id="reproCostPurple" class="fill purple" style="width:0%"></div></div>
           <div class="meter"><div id="reproCostRed"    class="fill red"    style="width:0%"></div></div>
+          <div class="meter" id="reproCostCustomParent" style="display:none;"><div id="reproCostCustom" class="fill" style="width:0%"></div></div>
         </div>
       
         <div class="trait-block">
@@ -128,6 +141,7 @@
           <div class="meter"><div id="childEnergyBlue"   class="fill blue"   style="width:0%"></div></div>
           <div class="meter"><div id="childEnergyPurple" class="fill purple" style="width:0%"></div></div>
           <div class="meter"><div id="childEnergyRed"    class="fill red"    style="width:0%"></div></div>
+          <div class="meter" id="childEnergyCustomParent" style="display:none;"><div id="childEnergyCustom" class="fill" style="width:0%"></div></div>
         </div>
       
         <div class="trait-block">
@@ -135,28 +149,98 @@
           <div class="meter"><div id="burnBlue"   class="fill blue"   style="width:0%"></div></div>
           <div class="meter"><div id="burnPurple" class="fill purple" style="width:0%"></div></div>
           <div class="meter"><div id="burnRed"    class="fill red"    style="width:0%"></div></div>
+          <div class="meter" id="burnCustomParent" style="display:none;"><div id="burnCustom" class="fill" style="width:0%"></div></div>
         </div>     
       </aside>
       
       
 
-      <div class="spawn-group cell-group">
-        <button id="spawnCellBtn" class="spawn-btn cell-btn">Spawn Cell</button>
-        <button id="killBtn" class="spawn-btn kill-btn" title="Kill cells">✖</button>
+       <div class="spawn-group cell-group">
+         <button id="spawnCellBtn" class="spawn-btn cell-btn">Spawn Cell</button>
+         <button id="killBtn" class="spawn-btn kill-btn" title="Kill cells">✖</button>
+         <button id="blockBtn" class="spawn-btn block-btn" title="Place blocks">Block</button>
         <div id="cellPanel" class="cell-panel" hidden>
           <div class="cell-title">Choose cell type</div>
           <div class="cell-options">
             <button class="cell-opt" data-type="blue">Blue</button>
             <button class="cell-opt" data-type="purple">Purple</button>
             <button class="cell-opt" data-type="red">Red</button>
+            <button id="createCellBtn">Create</button>
           </div>                 
         </div>
       </div>
 
     </div>
-  </div>
+   </div>
 
-  <!-- Load our scripts in order -->
+   <!-- Custom Cell Creation Modal -->
+   <div id="customCellModal" class="modal-overlay" hidden>
+     <div class="modal custom-modal">
+       <h2>Create Custom Cell</h2>
+       <form id="customCellForm">
+         <div class="form-group">
+           <label for="cellType">Type:</label>
+           <select id="cellType" name="type">
+             <option value="herbivore">Herbivore</option>
+             <option value="carnivore">Carnivore</option>
+           </select>
+         </div>
+         <div class="form-group">
+           <label for="cellColor">Color:</label>
+           <input type="color" id="cellColor" name="color" value="#58a6ff">
+         </div>
+         <div class="form-group">
+           <label for="mutationRate">Mutation Rate: <span id="mutationRateVal">10%</span></label>
+           <input type="range" id="mutationRate" name="mutationRate" min="0" max="1" step="0.01" value="0.1">
+           <small>Controls how much all traits (including color) mutate in offspring. Low = traits stay close to parent, High = traits can vary significantly. This trait is inheritable - strains can evolve high or low mutation rates over time.</small>
+         </div>
+         <div class="trait-sliders">
+           <div class="form-group">
+             <label for="radius">Radius: <span id="radiusVal">6</span></label>
+             <input type="range" id="radius" name="radius" min="4" max="9" step="1" value="6">
+           </div>
+           <div class="form-group">
+             <label for="maxSpeed">Max Speed: <span id="maxSpeedVal">1.9</span></label>
+             <input type="range" id="maxSpeed" name="maxSpeed" min="1.1" max="2.6" step="0.1" value="1.9">
+           </div>
+           <div class="form-group">
+             <label for="acceleration">Acceleration: <span id="accelerationVal">0.08</span></label>
+             <input type="range" id="acceleration" name="acceleration" min="0.045" max="0.14" step="0.005" value="0.08">
+           </div>
+           <div class="form-group">
+             <label for="friction">Friction: <span id="frictionVal">0.96</span></label>
+             <input type="range" id="friction" name="friction" min="0.93" max="0.99" step="0.01" value="0.96">
+           </div>
+           <div class="form-group">
+             <label for="digestionDelay">Digestion Delay: <span id="digestionDelayVal">300</span></label>
+             <input type="range" id="digestionDelay" name="digestionDelay" min="150" max="1200" step="10" value="300">
+           </div>
+           <div class="form-group">
+             <label for="reproThreshold">Repro Threshold: <span id="reproThresholdVal">70</span></label>
+             <input type="range" id="reproThreshold" name="reproThreshold" min="50" max="130" step="5" value="70">
+           </div>
+           <div class="form-group">
+             <label for="reproCost">Repro Cost: <span id="reproCostVal">35</span></label>
+             <input type="range" id="reproCost" name="reproCost" min="20" max="70" step="5" value="35">
+           </div>
+           <div class="form-group">
+             <label for="childStartEnergy">Child Start Energy: <span id="childStartEnergyVal">25</span></label>
+             <input type="range" id="childStartEnergy" name="childStartEnergy" min="15" max="60" step="5" value="25">
+           </div>
+           <div class="form-group">
+             <label for="baselineBurn">Baseline Burn: <span id="baselineBurnVal">1.2</span></label>
+             <input type="range" id="baselineBurn" name="baselineBurn" min="0.8" max="2.0" step="0.1" value="1.2">
+           </div>
+         </div>
+         <div class="modal-buttons">
+           <button type="submit">Create Cell</button>
+           <button type="button" id="cancelCreate">Cancel</button>
+         </div>
+       </form>
+     </div>
+   </div>
+
+   <!-- Load our scripts in order -->
   <script src="JavaScript/blueCell/blueCell.js"></script>
   <script src="JavaScript/purpleCell/purpleCell.js"></script>
   <script src="JavaScript/redCell/redCell.js"></script>
